@@ -1,0 +1,11 @@
+(Not Given)
+NFQ 1 Certificate
+NFQ 2 Certificate
+NFQ 3 Junior Certificate
+NFQ 4 Leaving Certificate
+NFQ 5 Leaving Certificate Honours
+NFQ 6 Advanced/Higher Certificate
+NFQ 7 Ordinary Bachelor Degree
+NFQ 8 Honours Bachelor Degree/Higher Diploma
+NFQ 9 Masters Degree/Post Graduate Diploma
+NFQ 10 Doctoral Degree
