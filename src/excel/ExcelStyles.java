@@ -9,7 +9,7 @@ public class ExcelStyles extends Excel {
 
     private final String stylesFooter = "</styleSheet>";
 
-    public String getStylesXml() {
+    public String getStyles() {
         return stylesHeader
                 + getFonts()
                 + getFills()
@@ -80,4 +80,5 @@ public class ExcelStyles extends Excel {
             </cellXfs>
             """;
     }
+
 }

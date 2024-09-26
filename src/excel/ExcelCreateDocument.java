@@ -2,6 +2,7 @@ package excel;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -20,6 +21,7 @@ public class ExcelCreateDocument extends Excel {
         this.workbookXml = new ExcelWorkbookXml();
         this.styleSheet = new ExcelStyles();
         this.worksheets = new ExcelWorksheets(filePath);
+        System.out.println(sheetNames.length + 1);
         createZip(fileName);
     }
 
@@ -33,7 +35,7 @@ public class ExcelCreateDocument extends Excel {
             // Create xl/workbook.xml
             addToZip(zos, "xl/workbook.xml", workbookXml.getWorkBookXml());
             // Create xl/styles.xml
-            addToZip(zos, "xl/styles.xml", styleSheet.getStylesXml());
+            addToZip(zos, "xl/styles.xml", styleSheet.getStyles());
             //  Create xl/worksheets.xml
             for (Map.Entry<String, String> entry : worksheets.getExcelWorksheets().entrySet()) {
                 addToZip(zos, "xl/worksheets/" + entry.getKey() + ".xml", entry.getValue());
@@ -49,7 +51,7 @@ public class ExcelCreateDocument extends Excel {
     // Helper method to add files to the ZIP
     private void addToZip(ZipOutputStream zos, String fileName, String content) throws IOException {
         zos.putNextEntry(new ZipEntry(fileName));
-        zos.write(content.getBytes());
+        zos.write(content.getBytes(StandardCharsets.UTF_8));
         zos.closeEntry();
     }
 }

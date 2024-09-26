@@ -5,6 +5,7 @@ public class ExcelContentTypes extends Excel {
     private final String contentTypesHeader = """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+            <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
             <Override PartName="/_rels/.rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
             <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
             """;

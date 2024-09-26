@@ -27,12 +27,19 @@ public class ExcelWorkbookRelations extends Excel {
 
     private StringBuilder workbookRelationsData() {
         StringBuilder relationshipLineBuilder = new StringBuilder();
+        relationshipLineBuilder.append(styleRelationshipLine());
         int id = 1;
         for (String sheetName : sheetNames) {
             relationshipLineBuilder.append(relationshipLine(sheetName, id));
             id++;
         }
         return relationshipLineBuilder;
+    }
+
+    private String styleRelationshipLine() {
+        return "<Relationship Id=\"rId" + (sheetNames.length + 1) + "\" "
+                + "Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" "
+                + "Target=\"styles.xml\"/>\n";
     }
 
     private String relationshipLine(String name, int id) {
