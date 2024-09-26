@@ -1,9 +1,9 @@
 package excel;
 
-public class ExcelConstants {
+public class Excel {
 
     //First entry in the array is the Main worksheet
-    public final String[] sheetNames = {"Trainee", "Gender", "AgeRange", "CurrentHighestNFQ", "EmploymentStatus"
+     public final String[] sheetNames = {"Trainee", "Gender", "AgeRange", "CurrentHighestNFQ", "EmploymentStatus"
             , "MemberCompany", "OccupationalCategory", "UnemploymentTime", "CountyOfResidence", "AttendedEvent"};
 
     public final String RELS = """

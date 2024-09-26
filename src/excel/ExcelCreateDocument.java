@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ExcelCreateDocument extends ExcelConstants {
+public class ExcelCreateDocument extends Excel {
 
     private final ExcelContentTypes contentTypes;
     private final ExcelWorkbookRelations workbookRelations;

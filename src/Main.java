@@ -7,7 +7,7 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        new ExcelCreateDocument("chamber","src/csv/testCsv.csv");
+        new ExcelCreateDocument("dataTester","src/csv/testCsv.csv");
     }
 
 }

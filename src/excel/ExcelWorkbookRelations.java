@@ -1,8 +1,6 @@
 package excel;
 
-public class ExcelWorkbookRelations extends ExcelConstants {
-
-    private final String workbookRelations;
+public class ExcelWorkbookRelations extends Excel {
 
     private final String workbookRelationsHeader = """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -11,22 +9,30 @@ public class ExcelWorkbookRelations extends ExcelConstants {
 
     private final String workbookRelationsFooter = "</Relationships>";
 
+    private final String workbookRelations;
+
     public ExcelWorkbookRelations() {
-        this.workbookRelations = workbookRelationsBuilder();
+        this.workbookRelations = createWorkbook();
     }
 
     public String getWorkbookRelations() {
         return workbookRelations;
     }
 
-    private String workbookRelationsBuilder() {
+    private String createWorkbook() {
+        return workbookRelationsHeader
+                + workbookRelationsData()
+                + workbookRelationsFooter;
+    }
+
+    private StringBuilder workbookRelationsData() {
         StringBuilder relationshipLineBuilder = new StringBuilder();
         int id = 1;
         for (String sheetName : sheetNames) {
             relationshipLineBuilder.append(relationshipLine(sheetName, id));
             id++;
         }
-        return workbookRelationsHeader + relationshipLineBuilder + workbookRelationsFooter;
+        return relationshipLineBuilder;
     }
 
     private String relationshipLine(String name, int id) {

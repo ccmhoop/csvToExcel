@@ -1,8 +1,6 @@
 package excel;
 
-public class ExcelContentTypes extends ExcelConstants {
-
-    private final String contentTypes;
+public class ExcelContentTypes extends Excel {
 
     private final String contentTypesHeader = """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -17,20 +15,28 @@ public class ExcelContentTypes extends ExcelConstants {
             </Types>
             """;
 
+    private final String contentTypes;
+
     public ExcelContentTypes() {
-        this.contentTypes = contentTypesBuilder();
+        this.contentTypes = createWorkbook();
     }
 
     public String getContentTypes() {
         return contentTypes;
     }
 
-    private String contentTypesBuilder() {
+    private String createWorkbook() {
+        return contentTypesHeader
+                + contentTypesData()
+                + contentTypesFooter;
+    }
+
+    private StringBuilder contentTypesData() {
         StringBuilder contentTypes = new StringBuilder();
         for (String sheetName : sheetNames) {
             contentTypes.append(overrideLine(sheetName));
         }
-        return contentTypesHeader + contentTypes + contentTypesFooter;
+        return contentTypes;
     }
 
     private String overrideLine(String name) {

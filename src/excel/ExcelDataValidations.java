@@ -13,88 +13,92 @@ import java.util.Map;
 
 public class ExcelDataValidations {
 
-    private Map<String, String> droplistSheetData;
-    private Map<String, String> dataValidation;
-    private int droplistCount = 0;
+    private final StringBuilder validationBlockBuilder;
+    private final Map<String, String> sheetData;
     private final int maxRowRange;
+    private String dataValidations;
+    private int worksheetCount = 0;
 
     public ExcelDataValidations(int maxRowRange) throws IOException {
         this.maxRowRange = maxRowRange;
-        createDroplistData();
+        this.sheetData = new HashMap<>();
+        this.validationBlockBuilder = new StringBuilder();
+        processFilesInFolder("src/excel/droplistRecords");
     }
 
-    public Map<String, String> getDroplistSheetData() {
-        return droplistSheetData;
+    public Map<String, String> getSheetData() {
+        return sheetData;
     }
 
     public String getDataValidations() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("<dataValidations count=\"").append(droplistCount).append("\">\n");
-        for (Map.Entry<String, String> entry : dataValidation.entrySet()) {
-            builder.append(entry.getValue());
-        }
-        builder.append("</dataValidations>\n");
-        return builder.toString();
+        return dataValidations;
     }
 
-    private void createDroplistData() throws IOException {
-        File dir = new File("src/excel/droplistRecords");
+    private void processFilesInFolder(String folderPath) throws IOException {
+        File dir = new File(folderPath);
         File[] directoryListing = dir.listFiles();
-
-        droplistSheetData = new HashMap<>();
-        dataValidation = new HashMap<>();
-
+        String filename;
         for (File file : directoryListing) {
-            processTxtFiles(file);
+            filename = file.getName().replaceAll(".txt", "");
+            createSheetData(filename, file);
+            validationBlockBuilder.append(dataValidationBlock(filename));
         }
+
+        dataValidations = createDataValidations();
     }
 
-    private void processTxtFiles(File file) {
+    private void createSheetData(String filename, File file) throws IOException {
+        List<String> formattedRecords = readAndFormatRecords(file);
+        //map key = filename without File extension : example.txt -> example;
+        String sheetData = buildSheetData(formattedRecords);
+        this.sheetData.put(filename, sheetData);
+        worksheetCount++;
+    }
+
+    private List<String> readAndFormatRecords(File file) throws IOException {
+        List<String> formattedRecords = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            List<String> formattedRecords = readAndFormatTxtLines(br);
-            String filename = file.getName().replaceAll(".txt", "");
-
-            //map key = filename without File extension : example.txt -> example;
-            droplistSheetData.put(filename, droplistSheetDataBuilder(formattedRecords));
-            dataValidation.put(filename, dataValidationBuilder(filename));
-
-            droplistCount++;
+            String record;
+            while ((record = br.readLine()) != null) {
+                if (!record.isEmpty()) {
+                    formattedRecords.add(XmlUtility.replaceSpecialCharacters(record));
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private List<String> readAndFormatTxtLines(BufferedReader br) throws IOException {
-        List<String> formattedRecords = new ArrayList<>();
-        String record;
-        while ((record = br.readLine()) != null) {
-            if (!record.isEmpty()) {
-                formattedRecords.add(XmlUtility.replaceSpecialCharacters(record));
-            }
         }
         return formattedRecords;
     }
 
-    private String droplistSheetDataBuilder(List<String> formattedRecords) {
+    private String buildSheetData(List<String> formattedRecords) {
         StringBuilder sheetDataLineBuilder = new StringBuilder();
-        int counter = 1;
+        int rowCounter = 1;
         for (String record : formattedRecords) {
-            sheetDataLineBuilder.append(sheetDataLine(record, counter));
-            counter++;
+            sheetDataLineBuilder.append(sheetDataLine(record, rowCounter));
+            rowCounter++;
         }
         return sheetDataLineBuilder.toString();
     }
 
-    private String sheetDataLine(String record, int counter){
-        return "<row r=\""+ counter +"\"><c r=\"A"+ counter +"\" t=\"inlineStr\"><is><t>"+ record +"</t></is></c></row>\n";
+    private String sheetDataLine(String record, int rowCounter) {
+        return "<row r=\"" + rowCounter + "\">"
+                + "<c r=\"A" + rowCounter + "\" t=\"inlineStr\"><is><t>"
+                + record
+                + "</t></is></c></row>\n";
     }
 
-    private String dataValidationBuilder(String fileName) {
+    private String dataValidationBlock(String fileName) {
         char columnChar = getColumnChar(fileName);
-        return "<dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" " +
-                "sqref=\"" + columnChar + "2:" + columnChar + maxRowRange + "\">\n" +
-                "<formula1>=" + fileName + "</formula1>\n" +
-                "</dataValidation>\n";
+        return "<dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" "
+                + "sqref=\"" + columnChar + "2:" + columnChar + maxRowRange + "\">\n"
+                + "<formula1>=" + fileName + "</formula1>\n"
+                + "</dataValidation>\n";
+    }
+
+    private String createDataValidations() {
+        return "<dataValidations count=\"" + worksheetCount + "\">\n"
+                + validationBlockBuilder
+                + "</dataValidations>\n";
     }
 
     private char getColumnChar(String filename) {
@@ -111,5 +115,4 @@ public class ExcelDataValidations {
             default -> '0';
         };
     }
-
 }

@@ -1,8 +1,6 @@
 package excel;
 
-public class ExcelWorkbookXml extends ExcelConstants {
-
-    private final String workBookXml;
+public class ExcelWorkbookXml extends Excel {
 
     private final String workbookXmlHeader = """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -12,15 +10,23 @@ public class ExcelWorkbookXml extends ExcelConstants {
 
     private final String workBookXmlFooter = "\n</workbook>";
 
+    private final String workBookXml;
+
     public ExcelWorkbookXml() {
-        this.workBookXml = workbookXmlBuilder();
+        this.workBookXml = createWorkbook();
     }
 
     public String getWorkBookXml() {
         return workBookXml;
     }
 
-    private String workbookXmlBuilder() {
+    private String createWorkbook() {
+        return workbookXmlHeader
+                + workbookXmlData()
+                + workBookXmlFooter;
+    }
+
+    private StringBuilder workbookXmlData() {
         StringBuilder sheetsBuilder = new StringBuilder();
         StringBuilder definedNamesBuilder = new StringBuilder();
 
@@ -37,7 +43,7 @@ public class ExcelWorkbookXml extends ExcelConstants {
         sheetsBuilder.append("</sheets>\n");
         definedNamesBuilder.append("</definedNames>");
 
-        return workbookXmlHeader + sheetsBuilder + definedNamesBuilder + workBookXmlFooter;
+        return sheetsBuilder.append(definedNamesBuilder);
     }
 
     private String sheetLine(String sheetName, int id) {

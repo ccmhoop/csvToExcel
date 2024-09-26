@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExcelWorksheets extends ExcelConstants {
+public class ExcelWorksheets extends Excel {
 
     private final List<List<Object>> csvAsList;
     private final ExcelDataValidations dataValidations;
@@ -19,13 +19,13 @@ public class ExcelWorksheets extends ExcelConstants {
             , "EmailAddress*", "Phone*", "CurrentHighestNFQ*", "EmploymentStatus*", "MemberCompany"
             , "OccupationalCategory", "UnemploymentTime", "CountyOfResidence*", "AttendedEvent");
 
-    private final String sheetHeader = """
+    private final String worksheetHeader = """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
             xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
             """;
 
-    private final String sheetFooter = "</worksheet>";
+    private final String worksheetFooter = "</worksheet>";
 
     public ExcelWorksheets(String filePath) throws IOException {
         CsvReader<Object> csvReader = new CsvReader<>(filePath);
@@ -33,58 +33,52 @@ public class ExcelWorksheets extends ExcelConstants {
         this.rowAmount = csvAsList.size();
         this.dataValidations = new ExcelDataValidations(rowAmount + 20);
         this.excelWorksheets = new HashMap<>();
-        sheetProcessor();
+        createWorkbook();
     }
 
     public Map<String, String> getExcelWorksheets() {
         return excelWorksheets;
     }
 
-    private void sheetProcessor() {
+    private void createWorkbook() {
         csvAsList.set(0, columnLabels);
-        mainWorksheetBuilder();
-        droplistWorksheetBuilder();
+        for (int i = 0; i < sheetNames.length; i++) {
+            excelWorksheets.put(sheetNames[i], buildWorksheet(i));
+        }
     }
 
-    private void mainWorksheetBuilder() {
-        StringBuilder sheetBuilder = new StringBuilder();
-        int row = 1;
+    private String buildWorksheet(int index) {
+        return worksheetHeader
+                + "<sheetData>\n"
+                + (index == 0 ? mainSheetData() : droplistSheetData(index))
+                + "</sheetData>\n"
+                + (index == 0 ? dataValidations.getDataValidations() : "")
+                + worksheetFooter;
+    }
 
-        sheetBuilder.append(sheetHeader);
-        sheetBuilder.append("<sheetData>\n");
+    private StringBuilder mainSheetData() {
+        StringBuilder rowRecordsBuilder = new StringBuilder();
+        int row = 1;
         for (List<Object> rowRecords : csvAsList) {
             char columnLetter = 'A';
-            sheetBuilder.append("<row r=\"").append(row).append("\">\n");
+            rowRecordsBuilder.append("<row r=\"").append(row).append("\">\n");
             for (Object record : rowRecords) {
-                String formattedRecord = XmlUtility.replaceSpecialCharacters(record.toString());
-                sheetBuilder.append(sheetDataLine(columnLetter, row, formattedRecord));
+                rowRecordsBuilder.append(sheetDataLine(columnLetter, row, record));
                 columnLetter++;
             }
-            sheetBuilder.append("</row>\n");
+            rowRecordsBuilder.append("</row>\n");
             row++;
         }
-        sheetBuilder.append("</sheetData>\n")
-                .append(dataValidations.getDataValidations())
-                .append(sheetFooter);
-
-        excelWorksheets.put(sheetNames[0], sheetBuilder.toString());
+        return rowRecordsBuilder;
     }
 
-    private String sheetDataLine(char columnLetter, int row, String formattedRecord) {
-        return "<c t=\"inlineStr\" r=\"" + columnLetter + row + "\"><is><t>" + formattedRecord + "</t></is></c>\n";
+    private String droplistSheetData(int index) {
+        return dataValidations.getSheetData().get(sheetNames[index]);
     }
 
-    private void droplistWorksheetBuilder() {
-        for (String sheetName : sheetNames) {
-            if (!sheetName.equalsIgnoreCase(sheetNames[0])) {
-                String droplistSheet = sheetHeader + droplistSheetData(sheetName) + sheetFooter;
-                excelWorksheets.put(sheetName, droplistSheet);
-            }
-        }
-    }
-
-    private String droplistSheetData(String sheetName) {
-        return "<sheetData>\n" + dataValidations.getDroplistSheetData().get(sheetName) + "</sheetData>\n";
+    private String sheetDataLine(char columnLetter, int row, Object record) {
+        record = XmlUtility.replaceSpecialCharacters(record.toString());
+        return "<c t=\"inlineStr\" r=\"" + columnLetter + row + "\"><is><t>" + record + "</t></is></c>\n";
     }
 
 }
