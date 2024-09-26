@@ -12,11 +12,13 @@ public class ExcelCreateDocument extends Excel {
     private final ExcelWorkbookRelations workbookRelations;
     private final ExcelWorkbookXml workbookXml;
     private final ExcelWorksheets worksheets;
+    private final ExcelStyles styleSheet;
 
     public ExcelCreateDocument(String fileName, String filePath) throws IOException {
         this.contentTypes = new ExcelContentTypes();
         this.workbookRelations = new ExcelWorkbookRelations();
         this.workbookXml = new ExcelWorkbookXml();
+        this.styleSheet = new ExcelStyles();
         this.worksheets = new ExcelWorksheets(filePath);
         createZip(fileName);
     }
@@ -30,6 +32,8 @@ public class ExcelCreateDocument extends Excel {
             addToZip(zos, "xl/_rels/workbook.xml.rels", workbookRelations.getWorkbookRelations());
             // Create xl/workbook.xml
             addToZip(zos, "xl/workbook.xml", workbookXml.getWorkBookXml());
+            // Create xl/styles.xml
+            addToZip(zos, "xl/styles.xml", styleSheet.getStylesXml());
             //  Create xl/worksheets.xml
             for (Map.Entry<String, String> entry : worksheets.getExcelWorksheets().entrySet()) {
                 addToZip(zos, "xl/worksheets/" + entry.getKey() + ".xml", entry.getValue());

@@ -63,7 +63,12 @@ public class ExcelWorksheets extends Excel {
             char columnLetter = 'A';
             rowRecordsBuilder.append("<row r=\"").append(row).append("\">\n");
             for (Object record : rowRecords) {
-                rowRecordsBuilder.append(sheetDataLine(columnLetter, row, record));
+                if (row == 1){
+                    rowRecordsBuilder.append(sheetDataLineWithStyle(columnLetter, row, record));
+                }else{
+                    rowRecordsBuilder.append(sheetDataLine(columnLetter, row, record));
+                }
+
                 columnLetter++;
             }
             rowRecordsBuilder.append("</row>\n");
@@ -79,6 +84,19 @@ public class ExcelWorksheets extends Excel {
     private String sheetDataLine(char columnLetter, int row, Object record) {
         record = XmlUtility.replaceSpecialCharacters(record.toString());
         return "<c t=\"inlineStr\" r=\"" + columnLetter + row + "\"><is><t>" + record + "</t></is></c>\n";
+    }
+
+    private String sheetDataLineWithStyle(char columnLetter, int row, Object record) {
+        record = XmlUtility.replaceSpecialCharacters(record.toString());
+        String style = getColumnStyle(columnLetter);
+        return "<c t=\"inlineStr\" r=\"" + columnLetter + row + "\" s=\"" + style + "\"><is><t>" + record + "</t></is></c>\n";
+    }
+
+    private String getColumnStyle (char columnLetter){
+        return switch (columnLetter){
+            case 'I','J','K','M' -> "2";
+            default -> "1";
+        };
     }
 
 }
